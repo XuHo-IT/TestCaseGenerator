@@ -1,40 +1,129 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# TestCaseGenerator_UI
 
-## Getting Started
+A modern, AI-powered Use Case Report Generator built with Next.js, React, and TypeScript. This application provides an intuitive interface for generating comprehensive use case reports with AI assistance and exporting them to professional Excel documents.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **AI-Powered Generation**: Generate comprehensive use case reports using advanced AI technology
+- **Professional Excel Export**: Automatically download formatted Excel reports
+- **Modern UI/UX**: Clean, responsive interface built with Tailwind CSS
+- **Error Handling**: Robust error handling with retry mechanisms and fallback options
+- **Real-time Feedback**: User-friendly loading states and progress indicators
+
+## 🛠️ Tech Stack
+
+- **Frontend**: Next.js 15, React 19, TypeScript
+- **Styling**: Tailwind CSS
+- **Forms**: React Hook Form
+- **HTTP Client**: Axios
+- **Backend Integration**: RESTful API integration
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- Backend API running (AI FOR SE project)
+
+## 🚀 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/XuHo-IT/TestCasseGenerator_UI.git
+   cd TestCasseGenerator_UI
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   # or
+   yarn install
+   ```
+
+3. **Set up environment variables**
+   Create a `.env.local` file in the root directory:
+   ```env
+   NEXT_PUBLIC_API_BASE_URL=http://localhost:5000/api
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   # or
+   yarn dev
+   ```
+
+5. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+## 📖 Usage
+
+1. **Enter Use Case Name**: Provide a descriptive name for your use case
+2. **Add Context (Optional)**: Include additional context or requirements
+3. **Generate Report**: Click the generate button to create your use case report
+4. **Download Excel**: The report will automatically download as an Excel file
+
+## 🔧 Configuration
+
+### Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `NEXT_PUBLIC_API_BASE_URL` | Backend API base URL | `http://localhost:5000/api` |
+
+### Backend Integration
+
+This frontend integrates with the AI FOR SE backend API endpoints:
+
+- `POST /Testcase/generate-use-case-report` - Generate comprehensive use case reports
+- `POST /Testcase/generate-use-case-table` - Fallback endpoint for use case tables
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+1. **AI Service Overload**: The system automatically retries with exponential backoff
+2. **Backend Model Mismatch**: Clear error messages guide users when backend models need updating
+3. **Network Timeouts**: Extended timeouts handle long-running AI operations
+
+### Error Messages
+
+- **🤖 AI service overloaded**: Service is busy, automatic retry in progress
+- **⚠️ Backend model mismatch**: AI generated valid data but backend model needs updating
+- **🔧 Backend model issue**: Specific field type mismatches (e.g., array vs string)
+
+## 📁 Project Structure
+
+```
+├── pages/
+│   ├── components/
+│   │   └── TestcaseForm.tsx    # Main form component
+│   ├── _app.tsx               # App wrapper
+│   └── index.tsx              # Home page
+├── styles/
+│   └── globals.css            # Global styles
+├── public/                    # Static assets
+├── .gitignore                # Git ignore rules
+└── README.md                 # Project documentation
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🤝 Contributing
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+This project is part of the **AI FOR SE** project ecosystem. For contributions and issues, please refer to the main AI FOR SE project repository.
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## 📝 License
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+This project is a side feature of the **AI FOR SE** project. Please refer to the main project for licensing information.
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🔗 Related Projects
 
-## Learn More
+- **AI FOR SE**: Main project repository
+- **Backend API**: AI-powered test case generation backend
+- **AI Services**: Gemini AI integration for intelligent report generation
 
-To learn more about Next.js, take a look at the following resources:
+## 📞 Support
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+For support and questions related to this UI component, please contact the AI FOR SE development team.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+**Note**: This is a side feature of the **AI FOR SE** project, providing a modern web interface for AI-powered use case report generation.
