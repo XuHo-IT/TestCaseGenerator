@@ -26,147 +26,111 @@ export default function TestcaseForm() {
 
 
   // Generate use case report with retry mechanism
-  const generateUseCaseReport = async (data: any) => {
-    try {
-      setError("");
-      setSuccess("");
-      setIsGeneratingUseCase(true);
-      
-      if (!data.useCaseName.trim()) {
-        setError("Use Case Name is required");
-        setIsGeneratingUseCase(false);
-        return;
-      }
+ // Generate use case report with retry mechanism
+const generateUseCaseReport = async (data: any) => {
+  try {
+    setError("");
+    setSuccess("");
+    setIsGeneratingUseCase(true);
+    
+    if (!data.useCaseName.trim()) {
+      setError("Use Case Name is required");
+      setIsGeneratingUseCase(false);
+      return;
+    }
 
-      const useCaseRequest: UseCaseTableRequest = {
-        useCaseName: data.useCaseName,
-        additionalContext: data.additionalContext || undefined
-      };
-      
-      console.log("Sending request to:", `${API_BASE_URL}/Testcase/generate-use-case-report`);
-      console.log("Request data:", useCaseRequest);
-      
-      // Retry mechanism for Gemini API overload
-      let retryCount = 0;
-      const maxRetries = 3;
-      let lastError = null;
-      
-      while (retryCount < maxRetries) {
-        try {
-          const res = await axios.post(`${API_BASE_URL}/Testcase/generate-use-case-report`, useCaseRequest, {
-            headers: { "Content-Type": "application/json" },
-            responseType: "blob",
-            timeout: 90000, // Longer timeout for AI generation
-          });
-
-          console.log("Response received:", res.status, res.statusText);
-
-          // Download the Excel file directly
-          try {
-            const url = window.URL.createObjectURL(new Blob([res.data]));
-            const link = document.createElement("a");
-            link.href = url;
-            link.setAttribute("download", `usecase_report_${data.useCaseName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`);
-            document.body.appendChild(link);
-            link.click();
-            link.remove();
-            window.URL.revokeObjectURL(url);
-          } catch (downloadError) {
-            console.error("Download error:", downloadError);
-            setError("Failed to download Use Case Report");
-            return;
-          }
-
-          setSuccess(`📊 Use Case Report generated and downloaded successfully!`);
-          return; // Success, exit the retry loop
-          
-        } catch (err: any) {
-          lastError = err;
-          console.error(`Attempt ${retryCount + 1} failed:`, err.response?.data);
-          
-          // Check if it's a Gemini API overload error
-          const errorMessage = err.response?.data?.message || err.message || "";
-          const isGeminiOverload = errorMessage.includes("overloaded") || 
-                                 errorMessage.includes("503") || 
-                                 errorMessage.includes("UNAVAILABLE") ||
-                                 errorMessage.includes("ServiceUnavailable");
-          
-          if (isGeminiOverload && retryCount < maxRetries - 1) {
-            retryCount++;
-            const waitTime = Math.pow(2, retryCount) * 1000; // Exponential backoff: 2s, 4s, 8s
-            console.log(`Gemini API overloaded. Retrying in ${waitTime/1000} seconds... (Attempt ${retryCount + 1}/${maxRetries})`);
-            
-            setError(`🤖 AI service is currently busy. Retrying in ${waitTime/1000} seconds... (Attempt ${retryCount + 1}/${maxRetries})`);
-            
-            await new Promise(resolve => setTimeout(resolve, waitTime));
-            continue;
-          } else {
-            // If not a retryable error or max retries reached, break
-            break;
-          }
-        }
-      }
-      
-      // If we get here, all retries failed
-      console.error("All retry attempts failed. Last error:", lastError);
-      
-      // Try fallback to use case table endpoint
-      console.log("Trying fallback to use case table endpoint...");
+    const useCaseRequest: UseCaseTableRequest = {
+      useCaseName: data.useCaseName,
+      additionalContext: data.additionalContext || undefined
+    };
+    
+    console.log("Sending request to:", `${API_BASE_URL}/Testcase/generate-use-case-report`);
+    console.log("Request data:", useCaseRequest);
+    
+    // Retry mechanism for Gemini API overload
+    let retryCount = 0;
+    const maxRetries = 3;
+    let lastError = null;
+    
+    while (retryCount < maxRetries) {
       try {
-        const fallbackRes = await axios.post(`${API_BASE_URL}/Testcase/generate-use-case-table`, useCaseRequest, {
+        const res = await axios.post(`${API_BASE_URL}/Testcase/generate-use-case-report`, useCaseRequest, {
           headers: { "Content-Type": "application/json" },
           responseType: "blob",
-          timeout: 60000,
+          timeout: 90000, // Longer timeout for AI generation
         });
-        
-        console.log("Fallback response received:", fallbackRes.status, fallbackRes.statusText);
-        
-        // Download the Excel file from fallback
-        const url = window.URL.createObjectURL(new Blob([fallbackRes.data]));
+
+        console.log("Response received:", res.status, res.statusText);
+
+        // Download the Excel file directly
+        const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement("a");
         link.href = url;
-        link.setAttribute("download", `usecase_table_${data.useCaseName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`);
+        link.setAttribute("download", `usecase_report_${data.useCaseName.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.xlsx`);
         document.body.appendChild(link);
         link.click();
         link.remove();
         window.URL.revokeObjectURL(url);
+
+        setSuccess(`📊 Use Case Report generated and downloaded successfully!`);
+        return; // Success, exit retry loop
         
-        setSuccess(`📋 Use Case Table generated and downloaded successfully! (Fallback due to AI service overload)`);
-        return;
-      } catch (fallbackErr: any) {
-        console.error("Fallback also failed:", fallbackErr.response?.data);
-      }
-      
-      // Final error handling
-      let errorMessage = "Failed to generate use case report";
-      if (lastError?.response?.data) {
-        try {
-          if (lastError.response.data instanceof Blob) {
-            const text = await lastError.response.data.text();
-            errorMessage = text || errorMessage;
-          } else {
-            errorMessage = lastError.response.data.message || lastError.response.data || errorMessage;
-          }
-        } catch (parseError) {
-          console.error("Error parsing error response:", parseError);
+      } catch (err: any) {
+        lastError = err;
+        console.error(`Attempt ${retryCount + 1} failed:`, err.response?.data);
+
+        const errorMessage = err.response?.data?.message || err.message || "";
+        const isGeminiOverload =
+          errorMessage.includes("overloaded") ||
+          errorMessage.includes("503") ||
+          errorMessage.includes("UNAVAILABLE") ||
+          errorMessage.includes("ServiceUnavailable");
+
+        if (isGeminiOverload && retryCount < maxRetries - 1) {
+          retryCount++;
+          const waitTime = Math.pow(2, retryCount) * 1000; // 2s, 4s, 8s
+          console.log(`Gemini API overloaded. Retrying in ${waitTime / 1000}s...`);
+          setError(`🤖 AI service busy. Retrying in ${waitTime / 1000}s... (Attempt ${retryCount + 1}/${maxRetries})`);
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+          continue;
+        } else {
+          break; // not retryable or max retries reached
         }
       }
-      
-      // Provide user-friendly error messages for different error types
-      if (errorMessage.includes("overloaded") || errorMessage.includes("503") || errorMessage.includes("UNAVAILABLE")) {
-        setError("🤖 AI service is currently overloaded. Please try again in a few minutes. The service is experiencing high demand.");
-      } else if (errorMessage.includes("JSON value could not be converted") || errorMessage.includes("parsing use case report response")) {
-        setError("⚠️ Backend model mismatch detected. The AI generated valid data but the backend model needs updating. Please contact the development team to fix the data model compatibility.");
-      } else if (errorMessage.includes("secondaryActors") || errorMessage.includes("System.String")) {
-        setError("🔧 Backend model issue: The AI correctly generated an array for 'secondaryActors' but the backend expects a string. This is a backend configuration issue that needs to be fixed.");
-      } else {
-        setError(errorMessage);
-      }
-      
-    } finally {
-      setIsGeneratingUseCase(false);
     }
-  };
+
+    // All retries failed
+    console.error("All retry attempts failed. Last error:", lastError);
+
+    // Final error message
+    let errorMessage = "Failed to generate use case report";
+    if (lastError?.response?.data) {
+      try {
+        if (lastError.response.data instanceof Blob) {
+          const text = await lastError.response.data.text();
+          errorMessage = text || errorMessage;
+        } else {
+          errorMessage = lastError.response.data.message || lastError.response.data || errorMessage;
+        }
+      } catch (parseError) {
+        console.error("Error parsing error response:", parseError);
+      }
+    }
+
+    // Friendly error display
+    if (errorMessage.includes("overloaded") || errorMessage.includes("503") || errorMessage.includes("UNAVAILABLE")) {
+      setError("🤖 AI service is currently overloaded. Please try again later.");
+    } else if (errorMessage.includes("JSON value could not be converted")) {
+      setError("⚠️ Backend model mismatch. Please contact the development team.");
+    } else {
+      setError(errorMessage);
+    }
+
+  } finally {
+    setIsGeneratingUseCase(false);
+  }
+};
+
 
 
   return (
