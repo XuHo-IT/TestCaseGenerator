@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import axios from "axios";
 import { useState } from "react";
 
+// Get API base URL from environment variable
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 // Types for API responses
 interface UseCaseTableRequest {
@@ -42,7 +44,7 @@ const generateUseCaseReport = async (data: any) => {
       additionalContext: data.additionalContext || undefined
     };
     
-    console.log("Sending request to:", `/api/generate-use-case-report`);
+    console.log("Sending request to:", `${API_BASE_URL}/Testcase/generate-use-case-report`);
     console.log("Request data:", useCaseRequest);
     
     // Retry mechanism for Gemini API overload
@@ -52,7 +54,7 @@ const generateUseCaseReport = async (data: any) => {
     
     while (retryCount < maxRetries) {
       try {
-        const res = await axios.post(`/api/generate-use-case-report`, useCaseRequest, {
+        const res = await axios.post(`${API_BASE_URL}/Testcase/generate-use-case-report`, useCaseRequest, {
           headers: { "Content-Type": "application/json" },
           responseType: "blob",
           timeout: 90000, // Longer timeout for AI generation
